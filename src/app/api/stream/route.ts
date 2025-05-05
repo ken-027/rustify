@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import ratelimit from "@/middlewares/rate-limit.middleware";
 import AnthropicUtil from "@/utils/anthropic.util";
+import { waitUntil } from "@vercel/functions";
+import { RATE_LIMIT } from "@/config/index.config";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for") ?? "anonymous";
@@ -14,6 +16,14 @@ export async function POST(req: NextRequest) {
       },
       { status: 400 }
     );
+  }
+
+  const { remaining } = await ratelimit.getRemaining(ip);
+
+  if (remaining <= 0) {
+    return new Response(JSON.stringify({ remaining, limit: RATE_LIMIT }), {
+      status: 429,
+    });
   }
 
   const { code: user_prompt } = body;
@@ -34,7 +44,8 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  await ratelimit.limit(ip);
+  const { pending } = await ratelimit.limit(ip);
+  waitUntil(pending);
 
   return new Response(stream, {
     headers: {

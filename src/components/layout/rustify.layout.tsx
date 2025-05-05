@@ -147,6 +147,13 @@ export default function RustifyLayout() {
           </div>
         </div>
       </div>
+      <a
+        href="https://www.programiz.com/rust/online-compiler/"
+        className="block text-center text-blue-500 font-bold text-lg"
+        target="_blank"
+      >
+        Test the code
+      </a>
       <p className="text-center">
         Remaining conversion today: <strong>{limit}</strong>
       </p>

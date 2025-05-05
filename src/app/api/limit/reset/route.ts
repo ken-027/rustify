@@ -47,8 +47,6 @@ export async function POST(request: Request) {
 
   const { remaining } = await ratelimit.getRemaining(ip);
 
-  console.log(remaining);
-
   if (remaining === RATE_LIMIT) {
     return Response.json(
       {
